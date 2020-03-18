@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <vector>
 
-#define TEXTURE_NUM 10
+#define TEXTURE_NUM 28
 
 const int TEXTURE_UNIT_SHADER_SPECULAR = 2;
 const int TEXTURE_UNIT_SHADER_NORMAL = 1;
@@ -124,6 +124,7 @@ osg::Geometry* createSquare(float textureCoordMax = 1.0f) {
 
 osg::ref_ptr<osg::StateSet> insertBumpMapTexture(osg::Image *color_image, osg::Image *normal_image, osg::Image *specular_image,
         const int texture_unit_diffuse, const int texture_unit_normal, const int texture_unit_specular) {
+
 
     if (!normal_image) {
         std::cout << "NORMAL IMAGE FAIL" << std::endl;
@@ -250,38 +251,93 @@ void selectTexture(int texture, std::string *normal_path, std::string *difuse_pa
 
     std::string texture_type;
     switch (texture) {
-    case 10:
-        texture_type = "gray_texture";
         break;
     case 1:
-        texture_type = "yellow_texture";
+        texture_type = "yellow_dirty_plastic"; //buyonacy
         break;
     case 2:
-        texture_type = "sand_texture";
+        texture_type = "white_metal_rusty"; // vortex
         break;
     case 3:
-        texture_type = "wood_texture";
+        texture_type = "white_metal_rusty2";
         break;
     case 4:
-        texture_type = "red_texture";
+        texture_type = "yellow_texture";
         break;
     case 5:
-        texture_type = "concrete";
+        texture_type = "yellow_metal_scratched2";
         break;
     case 6:
-        texture_type = "black_texture";
+        texture_type = "yellow_metal_scratched3";
         break;
     case 7:
-        texture_type = "corrosion_texture";
+        texture_type = "black_metal";
         break;
     case 8:
-        texture_type = "metal_corrosion";
+        texture_type = "dark_metal2"; //anode
         break;
     case 9:
-        texture_type = "pedras_texture";
+        texture_type = "dark_metal3"; // black vortex
+        break;
+    case 10:
+        texture_type = "anode_cover";
+        break;
+    case 11:
+        texture_type = "anode_salt2";
+        break;
+    case 12:
+        texture_type = "algae";
+        break;
+    case 13:
+        texture_type = "concrete";
+        break;
+    case 14:
+        texture_type = "subsea_moss2";
+        break;
+    case 15:
+        texture_type = "subsea_moss3";
+        break;
+    case 16:
+        texture_type = "subsea_moss";
+        break;
+    case 17:
+        texture_type = "green_scratched";
+        break;
+    case 18:
+        texture_type = "sand_texture";
+        break;
+    case 19:
+        texture_type = "grey_metal_rusty_chipping";
+        break;
+    case 20:
+        texture_type = "red_ral_texture";
+        break;
+    case 21:
+        texture_type = "white_metal";
+        break;
+    case 22:
+        texture_type = "red_scratched2";
+        break;
+    case 23:
+        texture_type = "grey_scratched";
+        break;
+    case 24:
+        texture_type = "grey_scratched2";
+        break;
+    case 25:
+        texture_type = "blue_scratched";
+        break;
+    case 26:
+        texture_type = "blue_scratched2";
+        break;
+    case 27:
+        texture_type = "blue_scratched3";
+        break;
+    case 28:
+        texture_type = "white_metal_chipping";
         break;
     default:
-        texture_type = "";
+        texture_type = "grey_scratched";
         break;
     }
 
@@ -296,15 +352,11 @@ void selectTexture(int texture, std::string *normal_path, std::string *difuse_pa
 
 osg::Geode* applyGeometryScaleAndTexture(osg::Group* group, osg::Geometry* geometry, int texture, double scale_x, double scale_y) {
 
-    std::cout << "passei aqui 2.0 " << std::endl;
     // scale texture process on geometry, without stateset
     geometry = scale_texture(geometry, scale_x, scale_y, TEXTURE_UNIT_SHADER_DIFFUSE, TEXTURE_UNIT_SHADER_NORMAL, TEXTURE_UNIT_SHADER_SPECULAR);
-    std::cout << "passei aqui 2.1 " << std::endl;
     geometry->setStateSet(new osg::StateSet);
-    std::cout << "passei aqui 2.2 " << std::endl;
     // insert Textures on geometry
     osg::ref_ptr<osg::Geode> geode = group->getChild(texture)->asGeode();
-    std::cout << "passei aqui 2.3 " << std::endl;
 
 
     geode->addDrawable(geometry);
@@ -327,6 +379,25 @@ osg::Geode* applyGeometryScaleAndTexture(osg::Group* group, osg::Geometry* geome
     return geode_new;
 
 }
+void checkImagesExist(std::string difuse_path, std::string normal_path, std::string specular_path){
+    osg::ref_ptr<osg::Image> difuse_image = osgDB::readImageFile(difuse_path);
+    osg::ref_ptr<osg::Image> normal_image = osgDB::readImageFile(normal_path);
+    osg::ref_ptr<osg::Image> specular_image = osgDB::readImageFile(specular_path);
+    if (!normal_image) {
+        std::cout << "NORMAL IMAGE FAIL:" << normal_path << std::endl;
+        exit(0);
+    }
+
+    if (!difuse_image) {
+        std::cout << "COLOR IMAGE FAIL" << difuse_path <<std::endl;
+        exit(0);
+    }
+
+    if (!specular_image) {
+        std::cout << "SPECULAR IMAGE FAIL" << specular_path<< std::endl;
+        exit(0);
+    }
+}
 
 void addGeodeTexture(osg::Group* group) {
 
@@ -336,6 +407,8 @@ void addGeodeTexture(osg::Group* group) {
     for (int i = 1; i <= TEXTURE_NUM; ++i) {
         std::string normal_path, difuse_path, specular_path;
         selectTexture(i, &normal_path, &difuse_path, &specular_path);
+
+        checkImagesExist(difuse_path,normal_path, specular_path);
 
         osg::ref_ptr<osg::Image> difuse_image = osgDB::readImageFile(difuse_path);
         osg::ref_ptr<osg::Image> normal_image = osgDB::readImageFile(normal_path);
@@ -421,10 +494,14 @@ int main(int argc, char **argv) {
         // bumpRoot->setStateSet(createShaderBumpMap(TEXTURE_UNIT_SHADER_DIFFUSE, TEXTURE_UNIT_SHADER_NORMAL, TEXTURE_UNIT_SHADER_SPECULAR));
         addGeodeTexture(bumpRoot);
     }
-    std::string sdf_name = "docking_station";
-    std::string file_name = "visual_bkp.osgb";
-    std::string main_path = "/home/trocoli/dev.bir/bundles/gazebo_scenes/models/sdf/";
+
+    std::string sdf_name = "OBN";
+    std::string file_name = "visual.osg";
+    std::string main_path = "/home/mega/Documents/gazebo_scenes/models/sdf/";
+    std::string full_path = "/home/mega/Documents/OSG_BumpMap/"; //Alternative path besides the common gazebo file structure
+
     std::string final_path = main_path + sdf_name + "/" + file_name;
+    // std::string final_path = path + file_name; // Alternative path option
 
     std::cout << " path = " << final_path << std::endl;
 
@@ -444,7 +521,7 @@ int main(int argc, char **argv) {
       osg::ref_ptr<osg::Group> original_group = (osg::Group*) osgDB::readNodeFile(final_path);//bumpMapShader/visual_wellhead_1_shader.osgb
       osg::Geode* geode_original = (osg::Geode*) original_group->getChild(i);
 
-      int texture = atoi(argv[3]);
+      double texture = atof(argv[3]);
       double scale_x = atof(argv[4]);
       double scale_y = atof(argv[5]);
 
@@ -471,7 +548,7 @@ int main(int argc, char **argv) {
       int total_bumproot = 0;
 
       for (int i = 0; i < bumpRoot->getNumChildren(); i++)
-        total_bumproot += bumpRoot->getChild(i)->asGeode()->getNumDrawables(); 
+        total_bumproot += bumpRoot->getChild(i)->asGeode()->getNumDrawables();
 
       int total_object = original_group->getNumChildren();
       int total_object_writen = bumpRoot->getNumChildren();
